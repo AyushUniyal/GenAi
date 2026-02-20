@@ -14,7 +14,7 @@ docs = loader.load()
 print(len(docs))
 
 template = PromptTemplate(
-    template="What should be the appropriate title for this given text ? \n {text}",
+    template="What should be the appropriate title for this given text? \n {text}",
     input_variables=["text"]
 )
 
