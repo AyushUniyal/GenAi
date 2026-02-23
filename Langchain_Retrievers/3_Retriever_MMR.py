@@ -21,7 +21,5 @@ store = Chroma(
 
 print(store.from_documents(docs))
 
-print(store.similarity_search_with_score("What is Langchian?", k=2))
-
 retriever = store.as_retriever(search_type="mmr", search_kwargs={"k":3, "lambda_mult":0.5})
 print(retriever.invoke("What is Langchian?"))
