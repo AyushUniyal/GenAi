@@ -22,3 +22,8 @@ python-dotenv
 numpy
 scikit-learn
 streamlit
+chromadb
+faiss-cpu
+tiktoken  
+langchain-community 
+wikipedia
