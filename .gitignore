@@ -1,3 +1,4 @@
 .env
 my_chrom_db/
 Vector_Store/
+FAISS_store
