@@ -1,4 +1,5 @@
 .env
 my_chrom_db/
 Vector_Store/
+__pycache__/
 FAISS_store

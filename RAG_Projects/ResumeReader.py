@@ -113,46 +113,46 @@ def evaluate_rag(questions, answers, contexts):
     }
     dataset = Dataset.from_dict(data)
     return evaluate(dataset, metrics=[faithfulness, answer_relevancy])
+if __name__ == "__main__":
+    folder = "resume/"
+    question  = "What is the name and qualification of the candidate?"     
+    loaded_pdf = load_pdf(folder)
 
-folder = "resume/"
-question  = "What is the name and qualification of the candidate?"     
-loaded_pdf = load_pdf(folder)
+    questions=[]
+    answers=[]
+    contexts=[]
 
-questions=[]
-answers=[]
-contexts=[]
-
-if os.path.exists("FAISS_store"):
-    laoded_store = load_vectorstore("FAISS_store")
-else:
-    splitted_pdf = splitter_pdf(loaded_pdf)
-    laoded_store = create_vectorstore(splitted_pdf)
-
-retriever = get_retriever(laoded_store)
-chat_history = []
-
-retrieved_doc = retriever.invoke("elastic stack experience")
-# for doc in retrieved_doc:
-#     print(doc.metadata)
-#     print(doc.page_content[:100])
-#     print()
-while True:
-    question = input("You : ")
-    if question.lower() in ["quit", "exit"]:
-        break
+    if os.path.exists("FAISS_store"):
+        laoded_store = load_vectorstore("FAISS_store")
     else:
-        chat_history.append(HumanMessage(content=question))
-        rewritten = rewrite_query(question,chat_history) if chat_history else question
-        result = rag_chain(chat_history, rewritten, retriever)
-        answer = result["answer"]
-        retrieved_contexts = result["contexts"]
-        
-        questions.append(question)
-        answers.append(answer)
-        contexts.append(retrieved_contexts)
-        
-        chat_history.append(AIMessage(content=answer))
-        print(f"Assistant : {answer}\n")
+        splitted_pdf = splitter_pdf(loaded_pdf)
+        laoded_store = create_vectorstore(splitted_pdf)
 
-scores = evaluate_rag(questions, answers, contexts)
-print(scores)
+    retriever = get_retriever(laoded_store)
+    chat_history = []
+
+    retrieved_doc = retriever.invoke("elastic stack experience")
+    # for doc in retrieved_doc:
+    #     print(doc.metadata)
+    #     print(doc.page_content[:100])
+    #     print()
+    while True:
+        question = input("You : ")
+        if question.lower() in ["quit", "exit"]:
+            break
+        else:
+            chat_history.append(HumanMessage(content=question))
+            rewritten = rewrite_query(question,chat_history) if chat_history else question
+            result = rag_chain(chat_history, rewritten, retriever)
+            answer = result["answer"]
+            retrieved_contexts = result["contexts"]
+            
+            questions.append(question)
+            answers.append(answer)
+            contexts.append(retrieved_contexts)
+            
+            chat_history.append(AIMessage(content=answer))
+            print(f"Assistant : {answer}\n")
+
+    scores = evaluate_rag(questions, answers, contexts)
+    print(scores)
