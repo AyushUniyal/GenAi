@@ -5,7 +5,21 @@ from langchain_classic.agents import create_react_agent, AgentExecutor
 from langchain_community.tools import DuckDuckGoSearchResults
 from langchain_core.tools import tool
 import requests as re
-import json
+import os
+
+import os
+
+os.environ["LANGCHAIN_PROJECT"] = "Agentic AI"
+
+config = {
+    "run_name" : "Agentic AI",
+    "tags" : ["Tools", "Langchain", "Agentic", "Practice", "Python"],
+    "metadata" : {
+        "model" : "ChatOpen AI",
+        "project" : "GenAI/Langchain/Agentic_with_Lanchain/Agents_with_Lnagchain.py",
+        "purpose" : "Tool Calling"
+    }
+}
 
 load_dotenv()
 llm = ChatOpenAI()
@@ -19,8 +33,6 @@ def weather_tool(city : str) -> dict:
     url = f"https://api.weatherstack.com/current?access_key={API_kry}&query={city}"
     response = re.get(url)
     return response.json()
-
-print(weather_tool.invoke({"city":"Abohar"}))
 
 prompt = hub.pull("hwchase17/react")
 
@@ -36,4 +48,6 @@ agent_ation =  AgentExecutor(
     tools=[searcg_tool, weather_tool]
 )
 
-print(agent_ation.invoke({"input":"What is the current population of Jaipur and what's the weather theres?"}))
+response = agent_ation.invoke({"input":"What is the current population of capital of Rajasthan and what's the weather theres?"}, config=config)
+
+print(response)

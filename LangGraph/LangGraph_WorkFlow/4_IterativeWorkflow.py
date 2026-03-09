@@ -7,9 +7,23 @@ from dotenv import load_dotenv
 from typing import TypedDict, Annotated, Literal
 import operator
 from pydantic import BaseModel, Field
+import os
+
+os.environ["LANGCHAIN_PROJECT"] = "langGraph - Iterative WorkFlow"
 
 load_dotenv()
 
+config = {
+    "run_name" : "Tweet Generator",
+    "tags" : ["LangGraph", "Iterative", "Workflow", "Practice" ],
+    "metadata" : {
+    "generator_model" : "gpt-4o-mini",
+    "evaluator_model" : "claude-haiku-4-5-20251001",
+    "optimizer_model" : "gpt-4o",
+    "project" : "GenAI/LangGraph/LangGraph_WorkFlow/4_IterativeWorkflow.py",
+    "purpose" : "Tweet Generator"
+    }
+}
 
 
 class tweetState(TypedDict):
@@ -28,7 +42,7 @@ class structured_evaluator(BaseModel):
     evaluation : Literal["approved", "need_improvement"] = Field(...,description="Final evaluation result")
 
 generator = ChatOpenAI(model="gpt-4o-mini")
-evaluator = ChatOpenAI(model="gpt-4o")
+evaluator = ChatAnthropic(model_name="claude-haiku-4-5-20251001")
 struc_evaluator = evaluator.with_structured_output(structured_evaluator)
 optimizer = ChatOpenAI(model="gpt-4o")
 
@@ -106,7 +120,7 @@ Re-write it as a short, viral-worthy tweet. Avoid Q&A style and stay under 280 c
     return {"tweet": result, "tweet_history":[result], "iteration" : iteration}
 
 def condition_check(state : tweetState) -> Literal["approved", "need_improvement"]:
-    if state["evaluation"] == "need_improvement" or state["iteration"] >= state["max_iteration"]:
+    if state["evaluation"] == "need_improvement" and state["iteration"] <= state["max_iteration"]:
         return "need_improvement"
     else:
         return "approved"
@@ -131,7 +145,7 @@ initial_state = {
     "max_iteration": 5
 }
 
-final_state = workflow.invoke(initial_state)
+final_state = workflow.invoke(initial_state, config=config)
 print(final_state)
 
 for tweet in final_state["tweet_history"]:

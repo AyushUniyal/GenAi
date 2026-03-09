@@ -2,6 +2,10 @@ import streamlit as st
 from langchain_core.messages import HumanMessage
 import uuid
 from ChatBot_sqlite import retrieve_chat
+import os
+
+os.environ["LANGCHAIN_PROJECT"] = " LangGraph - ChatBot"
+
 
 
 @st.cache_resource
@@ -71,11 +75,17 @@ for thread_id in st.session_state["chat_thread"]:
 #             yield word + " "
 #             time.sleep(0.10)
 
-
-
-config = {"configurable" : {"thread_id": st.session_state["thread_id"]}}
-
-
+config = {
+    "configurable" : {"thread_id": st.session_state["thread_id"]},
+    "run_name" : f"Chat - {st.session_state["thread_id"]}",
+    "tags" : ["LangGraph", "Interactive", "Workflow", "ChatBot", "Practice"],
+    "metadata" : {
+    "thread_id" : st.session_state["thread_id"],
+    "model" : "gpt-4o-mini",
+    "project" : "GenAI/LangGraph/streamlit_sqlite.py",
+    "purpose" : "ChatBot"
+    }
+}
 
 for message in st.session_state["message_history"]:
     with st.chat_message(message["role"]):

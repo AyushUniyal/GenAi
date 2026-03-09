@@ -19,8 +19,20 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableLambda, RunnableParallel, RunnablePassthrough
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
+import os
+from langsmith import traceable
 # ── Config ──────────────────────────────────────────────────────────────────
+
+os.environ["LANGCHAIN_PROJECT"] = "Youtube Chatbot"
+config = {
+    "run_name" : "Youtube ChatBot",
+    "tags" : ["Youtube", "RAG", "Langchain", "Python", "Practice"],
+    "metadata" : {
+        "model" : "ChatOpen AI",
+        "project" : "GenAI/Langchain/RAG_Projects/NewChatbot.py",
+        "purpose" : "Youtube ChatBot"
+    }
+}
 
 load_dotenv()
 sys.stdout.reconfigure(encoding="utf-8")
@@ -46,7 +58,7 @@ Answer:""",
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
-
+@traceable(name="Vedio Extraction")
 def extract_video_id(url_or_id: str) -> str:
     """Accept a full YouTube URL or a bare video ID and return the video ID."""
     # Already a plain ID (11 alphanumeric/dash/underscore chars)
@@ -66,14 +78,14 @@ def extract_video_id(url_or_id: str) -> str:
 
     raise ValueError(f"Cannot extract video ID from: {url_or_id!r}")
 
-
+@traceable(name="Fetching Transcript")
 def fetch_transcript(video_id: str, languages: list[str] = ["en"]) -> str:
     """Download and join the transcript for a given video ID."""
     api  = YouTubeTranscriptApi()
     data = api.fetch(video_id, languages=languages)
     return "  ".join(chunk.text for chunk in data)
 
-
+@traceable(name="Building Retriever")
 def build_retriever(transcript: str):
     """Chunk the transcript, embed it, and return a FAISS retriever."""
     splitter = RecursiveCharacterTextSplitter(
@@ -86,7 +98,7 @@ def build_retriever(transcript: str):
     store = FAISS.from_documents(documents=chunks, embedding=OpenAIEmbeddings())
     return store.as_retriever(search_type="similarity", search_kwargs={"k": TOP_K})
 
-
+@traceable(name="Chaining")
 def build_chain(retriever):
     """Compose the RAG chain: retrieve → format → prompt → model → parse."""
     format_context = RunnableLambda(
@@ -102,7 +114,7 @@ def build_chain(retriever):
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
-
+@traceable(name="main function")
 def main():
     # ── 1. Get video URL / ID ------------------------------------------------
     raw = input("Enter YouTube URL or video ID: ").strip()
@@ -130,7 +142,7 @@ def main():
             print("Goodbye!")
             break
 
-        answer = chain.invoke(question)
+        answer = chain.invoke(question, config=config)
         print(f"\nBot: {answer}\n")
 
 

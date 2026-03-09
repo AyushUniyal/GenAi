@@ -5,7 +5,9 @@ from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableParallel
 from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
+import os
 
+os.environ["LANGCHAIN_PROJECT"] = "Parallel Chain"
 
 load_dotenv()
 

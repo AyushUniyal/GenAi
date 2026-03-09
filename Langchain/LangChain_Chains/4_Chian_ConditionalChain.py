@@ -5,7 +5,19 @@ from langchain_core.prompts import PromptTemplate
 from pydantic import BaseModel, Field
 from typing import Literal
 from dotenv import load_dotenv
+import os 
 
+os.environ["LANGCHAIN_PROJECT"] = "Conditional Chain"
+
+config = {
+    "run_name" : "Condiotnal Chain",
+    "tags" : ["Conditional Chaining", "Langchain", "Practice"],
+    "metadata" : {
+        "model" : "ChatOpen AI",
+        "project" : "GenAI/Langchain/Langchain_Chains/4_Chain_ConditionalChain.py",
+        "purpose" : "Sentiment Analyzer"
+    }
+}
 
 load_dotenv()
 
@@ -49,5 +61,5 @@ branch = RunnableBranch(
 
 chain = classifier_chain | reviewparser | branch
 
-result = chain.invoke({"feedback" : "This is very impressive mobile phone, the Display is very crisp"})
+result = chain.invoke({"feedback" : "This is very laggy mobile phone, the Display is very dull and UI is unresponsive"}, config=config)
 print(result)
